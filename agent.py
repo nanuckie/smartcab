@@ -46,8 +46,10 @@ class LearningAgent(Agent):
         else:
             #self.epsilon -= self.epsilon_decay_factor 
             self.trials += 1
-            self.epsilon = math.exp(float(-0.1 * self.trials))
-
+            #self.epsilon = math.pow(0.1, float(self.trials)) # e=at
+            self.epsilon = math.exp(float(-0.01 * self.trials)) # e=e^(-at)
+            #self.epsilon = 1./math.pow(float(self.trials),2) # e=1/t^2
+            #self.epsilon = math.cos(0.01 * self.trials) # e=cos(at)
         return None
 
     def build_state(self):
@@ -70,7 +72,7 @@ class LearningAgent(Agent):
         # With the hand-engineered features, this learning process gets entirely negated.
         
         # Set 'state' as a tuple of relevant data for the agent  
-        state = (waypoint, inputs['light'], inputs['left'])
+        state = (waypoint, inputs['light'], inputs['left'], inputs['oncoming'])
 
         return state
 
@@ -188,7 +190,7 @@ def run():
     #   learning   - set to True to force the driving agent to use Q-learning
     #    * epsilon - continuous value for the exploration factor, default is 1
     #    * alpha   - continuous value for the learning rate, default is 0.5
-    agent = env.create_agent(LearningAgent, learning=True, alpha=0.5, epsilon=0.8)
+    agent = env.create_agent(LearningAgent, learning=True, alpha=0.5, epsilon=1.0)
     
     ##############
     # Follow the driving agent
@@ -203,14 +205,14 @@ def run():
     #   display      - set to False to disable the GUI if PyGame is enabled
     #   log_metrics  - set to True to log trial and simulation results to /logs
     #   optimized    - set to True to change the default log file name
-    sim = Simulator(env, update_delay=0.01, display=True, log_metrics=True, optimized=True)
+    sim = Simulator(env, update_delay=0.01, display=False, log_metrics=True, optimized=True)
     
     ##############
     # Run the simulator
     # Flags:
     #   tolerance  - epsilon tolerance before beginning testing, default is 0.05 
     #   n_test     - discrete number of testing trials to perform, default is 0
-    sim.run(n_test=20, tolerance = 0.01)
+    sim.run(tolerance = 0.01, n_test=40)
 
 
 if __name__ == '__main__':
